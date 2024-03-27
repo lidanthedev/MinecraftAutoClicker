@@ -28,6 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.biLeftMouse = new AutoClicker.ButtonInputs("Left mouse button", Win32Api.WmLbuttonDown, Win32Api.WmLbuttonDown + 1);
+            this.biRightMouse = new AutoClicker.ButtonInputs("Right mouse button", Win32Api.WmRbuttonDown, Win32Api.WmRbuttonDown + 1);
             this.btn_start = new System.Windows.Forms.Button();
             this.lblStartTime = new System.Windows.Forms.Label();
             this.btn_stop = new System.Windows.Forms.Button();
@@ -37,9 +39,21 @@
             this.hotkey_button = new System.Windows.Forms.Button();
             this.hotkey_label = new System.Windows.Forms.Label();
             this.refresh_button = new System.Windows.Forms.Button();
-            this.biLeftMouse = new AutoClicker.ButtonInputs("Left mouse button", Win32Api.WmLbuttonDown, Win32Api.WmLbuttonDown + 1);
-            this.biRightMouse = new AutoClicker.ButtonInputs("Right mouse button", Win32Api.WmRbuttonDown, Win32Api.WmRbuttonDown + 1);
             this.SuspendLayout();
+            // 
+            // biLeftMouse
+            // 
+            this.biLeftMouse.Location = new System.Drawing.Point(12, 18);
+            this.biLeftMouse.Name = "biLeftMouse";
+            this.biLeftMouse.Size = new System.Drawing.Size(240, 130);
+            this.biLeftMouse.TabIndex = 4;
+            // 
+            // biRightMouse
+            // 
+            this.biRightMouse.Location = new System.Drawing.Point(258, 18);
+            this.biRightMouse.Name = "biRightMouse";
+            this.biRightMouse.Size = new System.Drawing.Size(240, 130);
+            this.biRightMouse.TabIndex = 5;
             // 
             // btn_start
             // 
@@ -72,20 +86,6 @@
             this.btn_stop.Text = "STOP!";
             this.btn_stop.UseVisualStyleBackColor = true;
             this.btn_stop.Click += new System.EventHandler(this.Btn_stop_Click);
-            // 
-            // biLeftMouse
-            // 
-            this.biLeftMouse.Location = new System.Drawing.Point(12, 18);
-            this.biLeftMouse.Name = "biLeftMouse";
-            this.biLeftMouse.Size = new System.Drawing.Size(240, 130);
-            this.biLeftMouse.TabIndex = 4;
-            // 
-            // biRightMouse
-            // 
-            this.biRightMouse.Location = new System.Drawing.Point(258, 18);
-            this.biRightMouse.Name = "biRightMouse";
-            this.biRightMouse.Size = new System.Drawing.Size(240, 130);
-            this.biRightMouse.TabIndex = 5;
             // 
             // lblStarted
             // 
@@ -127,6 +127,8 @@
             this.hotkey_button.TabIndex = 9;
             this.hotkey_button.Text = "F6";
             this.hotkey_button.UseVisualStyleBackColor = true;
+            this.hotkey_button.Click += new System.EventHandler(this.hotkey_button_Click);
+            this.hotkey_button.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Main_keyDown);
             // 
             // hotkey_label
             // 
@@ -170,6 +172,7 @@
             this.MinimizeBox = false;
             this.Name = "Main";
             this.Text = "Auto-Clicker";
+            this.Load += new System.EventHandler(this.Main_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

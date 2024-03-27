@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -18,6 +19,10 @@ namespace AutoClicker
             "RLCraft",
             "Client"
         };
+        private Keys _key = Keys.F6;
+        private bool _waitingForKey = false;
+        KeyboardHook hook = new KeyboardHook();
+        private bool _isRunning = false;
 
         public Main()
         {
@@ -78,6 +83,7 @@ namespace AutoClicker
                 lblStartTime.Text = DateTime.Now.ToString("MMMM dd HH:mm tt");
                 lblStarted.Visible = true;
                 lblStartTime.Visible = true;
+                btn_stop.Enabled = false;
                 
                 foreach (var mcProcess in mcProcesses)
                 {
@@ -132,6 +138,8 @@ namespace AutoClicker
             FocusToggle(mainHandle);
             SetControlPropertyThreadSafe(btn_start, "Text", @"Running...");
             Thread.Sleep(750);
+            SetControlPropertyThreadSafe(btn_stop, "Enabled", true);
+            _isRunning = true;
         }
 
         private void AddToInstanceClickers(Process mcProcess, Clicker clicker)
@@ -150,6 +158,7 @@ namespace AutoClicker
         private void Stop()
         {
             btn_stop.Enabled = false;
+            _isRunning = false;
 
             foreach (var clickers in instanceClickers.Values)
             {
@@ -194,6 +203,54 @@ namespace AutoClicker
         private void refresh_button_Click(object sender, EventArgs e)
         {
             LoadProcesses();
+        }
+
+        private void hotkey_button_Click(object sender, EventArgs e)
+        {
+            _waitingForKey = true;
+            hotkey_button.Text = @"Press a key";
+        }
+
+        private void Main_Load(object sender, EventArgs e)
+        {
+            Debug.WriteLine("Loaded!");
+            hook.KeyPressed +=
+                new EventHandler<KeyPressedEventArgs>(hook_KeyPressed);
+            hook.RegisterHotKey(ModifierKeysHook.None,
+                _key);
+        }
+
+        private void Main_keyDown(object sender, KeyEventArgs e)
+        {
+            if (_waitingForKey)
+            {
+                hook.Dispose();
+                _key = e.KeyCode;
+                hotkey_button.Text = _key.ToString();
+                _waitingForKey = false;
+                hook = new KeyboardHook();
+                hook.KeyPressed +=
+                    new EventHandler<KeyPressedEventArgs>(hook_KeyPressed);
+                hook.RegisterHotKey(ModifierKeysHook.None,
+                    _key);
+            }
+        }
+
+        void hook_KeyPressed(object sender, KeyPressedEventArgs e)
+        {
+            if (_waitingForKey)
+            {
+                return;
+            }
+
+            if (_isRunning && btn_stop.Enabled)
+            {
+                Stop();
+            }
+            else if (btn_start.Enabled)
+            {
+                Btn_action_Click(sender, e);
+            }
         }
     }
 }
