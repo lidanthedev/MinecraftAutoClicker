@@ -16,5 +16,12 @@ namespace AutoClicker
 
         public static uint WmRbuttonDown => 0x0204;
         public static uint WmLbuttonDown => 0x201;
+
+        // Registers a hot key with Windows.
+        [DllImport("user32.dll")]
+        public static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
+        // Unregisters the hot key with Windows.
+        [DllImport("user32.dll")]
+        public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
     }
 }

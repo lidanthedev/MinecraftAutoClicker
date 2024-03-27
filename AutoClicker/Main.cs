@@ -15,12 +15,26 @@ namespace AutoClicker
         private static readonly List<string> WindowTitles = new List<string>
         {
             "Minecraft",
-            "RLCraft"
+            "RLCraft",
+            "Client"
         };
 
         public Main()
         {
             InitializeComponent();
+            LoadProcesses();
+        }
+
+        private void LoadProcesses()
+        {
+            var processes = Process.GetProcesses().Where(b => b.ProcessName.StartsWith("java") && b.MainWindowTitle != "").OrderBy(b => b.MainWindowTitle).Select(b => b.MainWindowTitle).ToArray();
+            cmbProcess.Items.Clear();
+            cmbProcess.Items.AddRange(processes);
+
+            // if there is only 1 item, may as well select it for the, as it is probably the window they want
+            if (cmbProcess.Items.Count == 1)
+                cmbProcess.SelectedItem = cmbProcess.Items[0];
+            
         }
 
         private async void Btn_action_Click(object sender, EventArgs e)
@@ -28,21 +42,16 @@ namespace AutoClicker
             try
             {
                 EnableElements(false);
-                var mcProcesses = Process.GetProcesses().Where(b => b.ProcessName.StartsWith("java") && WindowTitles.Any(title => b.MainWindowTitle.Contains(title))).ToList();
                 var mainHandle = Handle;
+                var mcProcesses = GetMcProcesses();
 
                 if (!mcProcesses.Any())
                 {
                     // if we first don't find any windows matching an expected name, give the user the ability to override
-                    var notRunning = new NotRunning();
-                    if (notRunning.ShowDialog() != DialogResult.OK)
-                    {
-                        EnableElements(true);
-                        return;
-                    }
+                    string title = cmbProcess.SelectedItem.ToString();
 
-                    if(!string.IsNullOrEmpty(notRunning.ProcessTitle))
-                        mcProcesses = Process.GetProcesses().Where(b => b.MainWindowTitle == notRunning.ProcessTitle).ToList();
+                    if (!string.IsNullOrEmpty(title))
+                        mcProcesses = Process.GetProcesses().Where(b => b.MainWindowTitle == title).ToList();
                 }
 
                 if (!mcProcesses.Any())
@@ -104,12 +113,17 @@ namespace AutoClicker
             }
         }
 
+        private static List<Process> GetMcProcesses()
+        {
+            return Process.GetProcesses().Where(b => b.ProcessName.StartsWith("java") && WindowTitles.Any(title => b.MainWindowTitle.Contains(title))).ToList();
+        }
+
         private void CountDown(IntPtr mainHandle)
         {
             SetControlPropertyThreadSafe(btn_start, "Text", @"Starting in: ");
             Thread.Sleep(750);
 
-            for (var i = 5; i > 0; i--)
+            for (var i = 3; i > 0; i--)
             {
                 SetControlPropertyThreadSafe(btn_start, "Text", i.ToString());
                 Thread.Sleep(750);
@@ -176,5 +190,10 @@ namespace AutoClicker
             else
                 control.GetType().InvokeMember(propertyName, BindingFlags.SetProperty, null, control, new[] { propertyValue });
         }//end SetControlPropertyThreadSafe
+
+        private void refresh_button_Click(object sender, EventArgs e)
+        {
+            LoadProcesses();
+        }
     }
 }
